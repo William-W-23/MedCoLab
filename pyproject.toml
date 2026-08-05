@@ -1,0 +1,81 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "medcolab"
+version = "1.0.0"
+description = "MedCoLab federated detection and classification training"
+requires-python = ">=3.10"
+dependencies = [
+    "albumentations==2.0.8",
+    "flwr[simulation]==1.24.0",
+    "flwr-datasets[vision]==0.5.0",
+    "h5py==3.16.0",
+    "matplotlib==3.10.5",
+    "numpy==2.2.6",
+    "pandas==2.3.3",
+    "pillow==11.3.0",
+    "pycocotools==2.0.10",
+    "torch==2.8.0",
+    "torchmetrics==1.8.2",
+    "torchvision==0.23.0",
+    "ultralytics==8.3.235",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["fl", "models"]
+
+[tool.flwr.app]
+publisher = "William-W-23"
+
+[tool.flwr.app.components]
+serverapp = "fl.server_app:app"
+clientapp = "fl.client_app:app"
+
+[tool.flwr.app.config]
+num-server-rounds = 200
+num_clients = 5
+local-epochs = 1
+lr = 0.00005
+master_seed = 42
+use_fedbn = true
+server_optimizer = "fedyogi"
+server_eta = 0.002
+fedyogi_beta1 = 0.8
+fedyogi_beta2 = 0.95
+fedyogi_tau = 0.001
+output_dir = "outputs/detection"
+fedbn_state_dir = "outputs/fedbn_state/detection"
+resume_bundle_path = ""
+resume_total_rounds = 0
+classification_num_clients = 5
+classification_master_seed = 42
+classification_local_epochs = 1
+classification_lr = 0.00005
+classification_backbone_lr = 0.00001
+classification_head_lr = 0.00005
+classification_weight_decay = 0.0001
+classification_label_smoothing = 0.0
+classification_class_weight_power = 1.0
+classification_moe_enabled = true
+classification_moe_num_experts = 4
+classification_moe_top_k = 2
+classification_moe_bottleneck = 256
+classification_moe_gamma_init = 0.001
+classification_moe_lr = 0.00005
+classification_moe_balance_loss_weight = 0.01
+classification_data_root = "datasets/classification"
+classification_round0_path = "checkpoints/classification_round0.pt"
+classification_stratified_manifest = "datasets/classification/manifest.json"
+classification_manifest_sha256 = ""
+classification_stratified_manifest_sha256 = ""
+classification_output_dir = "outputs/classification"
+
+[tool.flwr.federations]
+default = "local-simulation"
+
+[tool.flwr.federations.local-simulation]
+options.num-supernodes = 5
+options.backend.client-resources.num-cpus = 2
+options.backend.client-resources.num-gpus = 1.0
